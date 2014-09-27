@@ -2,16 +2,10 @@ package com.stuffaboutcode.canaryraspberryjuice;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.canarymod.Canary;
 import net.canarymod.plugin.Plugin;
-import net.canarymod.chat.Colors;
-import net.canarymod.hook.HookHandler;
-import net.canarymod.hook.system.ServerTickHook;
-import net.canarymod.hook.player.ConnectionHook;
-import net.canarymod.plugin.PluginListener;
 import net.canarymod.api.*;
 import net.canarymod.api.world.*;
 import net.canarymod.api.world.position.*;
@@ -20,7 +14,7 @@ import net.canarymod.api.entity.living.humanoid.*;
 import com.stuffaboutcode.canaryraspberryjuice.RemoteSession;
 import com.stuffaboutcode.canaryraspberryjuice.ServerListenerThread;
 
-public class CanaryRaspberryJuicePlugin extends Plugin implements PluginListener {
+public class CanaryRaspberryJuicePlugin extends Plugin {
 
 	public Player hostPlayer = null;
 	
@@ -30,16 +24,11 @@ public class CanaryRaspberryJuicePlugin extends Plugin implements PluginListener
 
 	@Override
 	public boolean enable() {
-		Canary.hooks().registerListener(new CanaryRaspberryJuicePlugin(), this);
+		Canary.hooks().registerListener(new CanaryRaspberryJuiceListener(this), this);
 		getLogman().info("Enabling " + getName() + " Version " + getVersion()); 
 		getLogman().info("Authored by "+getAuthor());
 		
 		sessions = new ArrayList<RemoteSession>();
-		if (sessions == null) {
-			getLogman().info("sessions is null");
-		} else {
-			getLogman().info("sessions is not null");
-		}
 		
 		try {
 			int port = 4711;
@@ -79,41 +68,10 @@ public class CanaryRaspberryJuicePlugin extends Plugin implements PluginListener
 		sessions = null;
 		serverThread = null;
 	}
-
-	
-	@HookHandler
-    public void onLogin(ConnectionHook hook) {
-		hook.getPlayer().message(Colors.YELLOW+"Hello World, "+hook.getPlayer().getName());
-    	hook.getPlayer().message(getSpawnLocation().toString());
-    }
-
-	@HookHandler
-	public void onTick(ServerTickHook tickHook) {
-		if (sessions == null) {
-			getLogman().info("sessions is null");
-		} else {
-			getLogman().info("sessions is not null");
-
-			Iterator<RemoteSession> sI = sessions.iterator();
-			while(sI.hasNext()) {
-				RemoteSession s = sI.next();
-				if (s.pendingRemoval) {
-					s.close();
-					sI.remove();
-				} else {
-					s.tick();
-				}
-			}
-		}
-	}
 		
 	/** called when a new session is established. */
 	public void handleConnection(RemoteSession newSession) {
-		if (sessions == null) {
-			getLogman().info("handleconn sessions is null");
-		} else {
-			getLogman().info("handleconn sessions is not null");
-		}
+		
 		if (checkBanned(newSession)) {
 			System.out.println("Kicking " + newSession.getSocket().getRemoteSocketAddress() + " because the IP address has been banned.");
 			newSession.kick("You've been banned from this server!");
