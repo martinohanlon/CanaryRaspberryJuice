@@ -1,0 +1,4 @@
+main-class = com.stuffaboutcode.canaryraspberryjuice.CanaryRaspberryJuicePlugin
+name = CanaryRaspberryJuicePlugin
+author = Martin OHanlon
+version = 0.1
