@@ -104,9 +104,11 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	public Player getHostPlayer() {
 		if (hostPlayer != null) return hostPlayer;
 		List<Player> allPlayers = getServer().getPlayerList();
+		if (allPlayers.size() == 0) getLogman().info("DEBUG - allPlayers size is 0");
 		if (allPlayers.size() >= 1)
 			return allPlayers.iterator().next();
 		return null;
+		// TODO get host player property
 	}
 	
 	public Player getNamedPlayer(String name) {

@@ -4,12 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-/*import org.bukkit.*;
-import org.bukkit.entity.*;
-import org.bukkit.block.*;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-*/
 import net.canarymod.api.*;
 import net.canarymod.api.world.*;
 import net.canarymod.api.world.position.*;
@@ -128,8 +122,13 @@ public class RemoteSession {
 			send(world.getBlockAt(loc).getType() + "," + world.getBlockAt(loc).getData());
 		} else if (c.equals("world.setBlock")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			//System.out.println(loc);
+			plugin.getLogman().info("DEBUG:setBlock:loc- " + loc.toString());
+			//DEBUG
+			System.out.println(loc);
+			System.out.println(world.getName());
 			world.getBlockAt(loc).setTypeId(Short.parseShort(args[3]));
+			//DEBUG
+			System.out.println(args[3].toString());
 			world.getBlockAt(loc).setData(args.length > 4? Short.parseShort(args[4]) : (short) 0);
 		} else if (c.equals("world.setBlocks")) {
 			Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
@@ -193,6 +192,7 @@ public class RemoteSession {
                 name = args[0];
             }
 			Player currentPlayer = getCurrentPlayer(name);
+			if (currentPlayer == null) plugin.getLogman().info("DEBUG - getPos - currentPlayer is null");
 			send(locationToRelative(currentPlayer.getLocation()));
 		} else if (c.equals("player.setPos")) {
             String name = null, x = args[0], y = args[1], z = args[2];
@@ -200,6 +200,7 @@ public class RemoteSession {
                 name = args[0]; x = args[1]; y = args[2]; z = args[3];
             }
 			Player currentPlayer = getCurrentPlayer(name);
+			if (currentPlayer == null) plugin.getLogman().info("DEBUG - getPos - currentPlayer is null");
 			currentPlayer.teleportTo(parseRelativeLocation(x, y, z));
 		} else if (c.equals("world.getHeight")) {
             send(world.getHighestBlockAt(Integer.parseInt(args[0]), Integer.parseInt(args[1])) - origin.getBlockY());
