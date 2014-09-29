@@ -22,8 +22,7 @@ public class CanaryRaspberryJuiceListener implements PluginListener {
     
 	@HookHandler
     public void onLogin(ConnectionHook hook) {
-		hook.getPlayer().message(Colors.YELLOW+"Hello World, "+hook.getPlayer().getName());
-    	hook.getPlayer().message(plugin.getSpawnLocation().toString());
+		hook.getPlayer().message(Colors.YELLOW+"Hello " + hook.getPlayer().getName() + " Raspberry Juice is running");
     }
 
 	@HookHandler

@@ -40,10 +40,6 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 			getLogman().warn("Failed to start ThreadListener");
 			return false;
 		}
-		//old bukkit code
-		/*getServer().getPluginManager().registerEvents(this, this);
-		tickTimerId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new TickHandler(), 1, 1);
-		*/
 		
 		return true;
 	}
@@ -73,13 +69,12 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	public void handleConnection(RemoteSession newSession) {
 		
 		if (checkBanned(newSession)) {
-			System.out.println("Kicking " + newSession.getSocket().getRemoteSocketAddress() + " because the IP address has been banned.");
+			getLogman().warn("Kicking " + newSession.getSocket().getRemoteSocketAddress() + " because the IP address has been banned.");
 			newSession.kick("You've been banned from this server!");
 			return;
 		}
 		synchronized(sessions) {
 			sessions.add(newSession);
-			getLogman().info("new session created");
 		}
 	}
 	
@@ -88,7 +83,6 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 		return Canary.bans().isIpBanned(sessionIp);
 	}
 
-	
 	public Server getServer() {
 		return Canary.getServer();
 	}
@@ -104,7 +98,6 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	public Player getHostPlayer() {
 		if (hostPlayer != null) return hostPlayer;
 		List<Player> allPlayers = getServer().getPlayerList();
-		if (allPlayers.size() == 0) getLogman().info("DEBUG - allPlayers size is 0");
 		if (allPlayers.size() >= 1)
 			return allPlayers.iterator().next();
 		return null;
