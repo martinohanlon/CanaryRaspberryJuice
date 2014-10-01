@@ -1,20 +1,28 @@
 package com.stuffaboutcode.canaryraspberryjuice;
 
-import java.util.Iterator;
-import net.canarymod.chat.Colors;
-import net.canarymod.hook.HookHandler;
-import net.canarymod.hook.system.ServerTickHook;
-import net.canarymod.hook.player.ConnectionHook;
-import net.canarymod.plugin.*;
-import net.canarymod.chat.Colors;
-import net.canarymod.hook.HookHandler;
-import net.canarymod.hook.player.ConnectionHook;
-import net.canarymod.hook.system.ServerTickHook;
+import java.util.*;
 
+import net.canarymod.chat.Colors;
+import net.canarymod.hook.HookHandler;
+import net.canarymod.hook.system.ServerTickHook;
+import net.canarymod.hook.player.ConnectionHook;
+import net.canarymod.hook.player.BlockRightClickHook;
+import net.canarymod.plugin.*;
+import net.canarymod.api.inventory.*;
+import net.canarymod.api.entity.living.humanoid.Player;
+import com.stuffaboutcode.canaryraspberryjuice.RemoteSession;
 
 public class CanaryRaspberryJuiceListener implements PluginListener {
 	
 	private CanaryRaspberryJuicePlugin plugin;
+	
+	// Tools (swords) which can be used to hit blocks
+	public static final Set<Integer> blockHitDetectionTools = new HashSet<Integer>(Arrays.asList(
+			ItemType.DiamondSword.getId(),
+			ItemType.GoldSword.getId(), 
+			ItemType.IronSword.getId(), 
+			ItemType.StoneSword.getId(), 
+			ItemType.WoodSword.getId()));
 	
 	public CanaryRaspberryJuiceListener(CanaryRaspberryJuicePlugin plugin) {
 		this.plugin = plugin;
@@ -38,5 +46,25 @@ public class CanaryRaspberryJuiceListener implements PluginListener {
 			}
 		}
 	}
-    
+	
+	@HookHandler
+	public void onBlockHit(BlockRightClickHook hitHook) {
+		//DEBUG
+		//plugin.getLogman().info("BlockRightHitHook fired");
+		//get the player
+		Player playerWhoHit = hitHook.getPlayer();
+		//get what the player is holding
+		Item itemHeld = playerWhoHit.getItemHeld();
+		//are they holding something!
+		if (itemHeld != null) {
+			// is the player holding a sword
+			if (blockHitDetectionTools.contains(itemHeld.getId())) {
+				// add the hook event to each session, the session can then decide what to do with it
+				for (RemoteSession session: plugin.sessions) {
+					session.queueBlockHit(hitHook);
+				}
+			}
+		}
+	}
+	
 }

@@ -8,7 +8,8 @@ import net.canarymod.api.*;
 import net.canarymod.api.world.*;
 import net.canarymod.api.world.position.*;
 import net.canarymod.api.world.blocks.*;
-import net.canarymod.api.entity.living.humanoid.*;
+import net.canarymod.api.entity.living.humanoid.Player;
+import net.canarymod.hook.player.BlockRightClickHook;
 
 // Remote session class manages commands
 public class RemoteSession {
@@ -32,7 +33,7 @@ public class RemoteSession {
 
 	public CanaryRaspberryJuicePlugin plugin;
 
-	//protected ArrayDeque<PlayerInteractEvent> interactEventQueue = new ArrayDeque<PlayerInteractEvent>();
+	protected ArrayDeque<BlockRightClickHook> blocktHitQueue = new ArrayDeque<BlockRightClickHook>();
 
 	private int maxCommandsPerTick = 9000;
 
@@ -87,12 +88,6 @@ public class RemoteSession {
 		return currentWorld;
 	}
 
-/*	public void queuePlayerInteractEvent(PlayerInteractEvent event) {
-		//plugin.getLogger().info(event.toString());
-		interactEventQueue.add(event);
-	}
-*/
-
 	/** called from the server main thread */
 	public void tick() {
 		if (origin == null) this.origin = plugin.getSpawnLocation();
@@ -133,7 +128,6 @@ public class RemoteSession {
 		// world.getBlock
 		if (c.equals("world.getBlock")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			//System.out.println(loc);
 			send(world.getBlockAt(loc).getTypeId());
 		
 		// world.getBlocks
@@ -151,7 +145,6 @@ public class RemoteSession {
 		} else if (c.equals("world.setBlock")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			//DEBUG
-			//plugin.getLogman().info("DEBUG:setBlock:loc- " + loc.toString());
 			Block thisBlock = world.getBlockAt(loc);
 			thisBlock.setTypeId(Short.parseShort(args[3]));
 			thisBlock.setData(args.length > 4? Short.parseShort(args[4]) : (short) 0);
@@ -187,27 +180,29 @@ public class RemoteSession {
 			server.broadcastMessage(chatMessage);
 		
 		// events.clear
-		/*} else if (c.equals("events.clear")) {
-			interactEventQueue.clear();
+		} else if (c.equals("events.clear")) {
+			blocktHitQueue.clear();
 		
 		// events.block.hits
 		} else if (c.equals("events.block.hits")) {
+			// this doesn't work with multiplayer! need to think about how this should work
 			StringBuilder b = new StringBuilder();
-	 		PlayerInteractEvent event;
-			while ((event = interactEventQueue.poll()) != null) {
-				Block block = event.getClickedBlock();
+	 		BlockRightClickHook event;
+			while ((event = blocktHitQueue.poll()) != null) {
+				Block block = event.getBlockClicked();
 				Location loc = block.getLocation();
 				b.append(blockLocationToRelative(loc));
 				b.append(",");
-				b.append(blockFaceToNotch(event.getBlockFace()));
+				b.append(blockFaceToNotch(block.getFaceClicked()));
 				b.append(",");
-				b.append(event.getPlayer().getEntityId());
-				if (interactEventQueue.size() > 0) {
+				b.append(event.getPlayer().getID());
+				if (blocktHitQueue.size() > 0) {
 					b.append("|");
 				}
 			}
-			System.out.println(b.toString());
-			send(b.toString());*/
+			//DEBUG
+			//plugin.getLogman().info(b.toString());
+			send(b.toString());
 			
 		// player.getTile
 		} else if (c.equals("player.getTile")) {
@@ -234,7 +229,6 @@ public class RemoteSession {
                 name = args[0];
             }
 			Player currentPlayer = getCurrentPlayer(name);
-			if (currentPlayer == null) plugin.getLogman().info("DEBUG - getPos - currentPlayer is null");
 			send(locationToRelative(currentPlayer.getLocation()));
 			
 		// player.setPos
@@ -244,7 +238,6 @@ public class RemoteSession {
                 name = args[0]; x = args[1]; y = args[2]; z = args[3];
             }
 			Player currentPlayer = getCurrentPlayer(name);
-			if (currentPlayer == null) plugin.getLogman().info("DEBUG - getPos - currentPlayer is null");
 			currentPlayer.teleportTo(parseRelativeLocation(x, y, z));
 			
 		// world.getHeight
@@ -253,7 +246,7 @@ public class RemoteSession {
             
         // not a command which is supported
 		} else {
-			System.err.println(c + " has not been implemented.");
+			plugin.getLogman().warn(c + " is not supported.");
 			send("Fail");
 		}
 	}
@@ -305,13 +298,16 @@ public class RemoteSession {
 		return blockData.substring(0, blockData.length() > 0 ? blockData.length() - 1 : 0);	// We don't want last comma
 	}
 	
-	
     public Player getCurrentPlayer(String name) {
+    	// if a named player is returned use that
         Player player = plugin.getNamedPlayer(name);
+        // otherwise if there is an attached player for this session use that
         if (player == null) {
             player = attachedPlayer;
+        	// otherwise go and get the host player and make that the attached player
             if (player == null) {
                 player = plugin.getHostPlayer();
+                attachedPlayer = player;
             }
         }
         return player;
@@ -385,6 +381,11 @@ public class RemoteSession {
 		close();
 	}
 
+	// add a block hit to the queue to be processed
+	public void queueBlockHit(BlockRightClickHook hitHook) {
+		blocktHitQueue.add(hitHook);
+	}
+	
 	/** socket listening thread */
 	private class InputThread implements Runnable {
 		public void run() {
@@ -428,12 +429,11 @@ public class RemoteSession {
 		}
 	}
 
-	/** from CraftBukkit's org.bukkit.craftbukkit.block.CraftBlock.blockFactToNotch */
-/*	public static int blockFaceToNotch(BlockFace face) {
+	public static int blockFaceToNotch(BlockFace face) {
 		switch (face) {
-		case DOWN:
+		case BOTTOM:
 			return 0;
-		case UP:
+		case TOP:
 			return 1;
 		case NORTH:
 			return 2;
@@ -446,7 +446,7 @@ public class RemoteSession {
 		default:
 			return 7; // Good as anything here, but technically invalid
 		}
-	}*/
+	}
 	
 
 }

@@ -15,8 +15,6 @@ import com.stuffaboutcode.canaryraspberryjuice.RemoteSession;
 import com.stuffaboutcode.canaryraspberryjuice.ServerListenerThread;
 
 public class CanaryRaspberryJuicePlugin extends Plugin {
-
-	public Player hostPlayer = null;
 	
 	public ServerListenerThread serverThread;
 
@@ -26,7 +24,7 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	public boolean enable() {
 		Canary.hooks().registerListener(new CanaryRaspberryJuiceListener(this), this);
 		getLogman().info("Enabling " + getName() + " Version " + getVersion()); 
-		getLogman().info("Authored by "+getAuthor());
+		getLogman().info("Authored by "+ getAuthor());
 		
 		sessions = new ArrayList<RemoteSession>();
 		
@@ -46,14 +44,13 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	
 	@Override
 	public void disable() {
-		System.out.println("Raspberry Juice Stopped");
+		getLogman().info("Raspberry Juice Stopped");
 		serverThread.running = false;
 		try {
 			serverThread.serverSocket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		getServer().getScheduler().cancelTasks(this);
 		for (RemoteSession session: sessions) {
 			try {
 				session.close();
@@ -94,16 +91,16 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	public Location getSpawnLocation(){
 		return getWorld().getSpawnLocation();
 	}
-	
+
+	// get the host player, i.e. the first player on the server
 	public Player getHostPlayer() {
-		if (hostPlayer != null) return hostPlayer;
 		List<Player> allPlayers = getServer().getPlayerList();
 		if (allPlayers.size() >= 1)
 			return allPlayers.iterator().next();
 		return null;
-		// TODO get host player property
 	}
 	
+	// gets a named player, as opposed to the host player
 	public Player getNamedPlayer(String name) {
         if (name == null) return null;
         List<Player> allPlayers = getServer().getPlayerList();
