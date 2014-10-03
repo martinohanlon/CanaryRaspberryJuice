@@ -4,17 +4,16 @@ Martin O'Hanlon (martin@ohanlonweb.com)
 http://www.stuffaboutcode.com
 -------------------------------------------------------------------------------
 
-WORK IN PROGRESS
-
-Migration of RaspberryJuice bukkit plugin to Canarymod. Original work by zhuowei
+Migration of RaspberryJuice bukkit plugin to Canarymod. Original plugin by zhuowei
 https://github.com/zhuowei/RaspberryJuice
+
 http://dev.bukkit.org/bukkit-plugins/raspberryjuice/
 
 
 ------------------------------------------------------------------------------
 
 Version history
-- not yet stable!
+- 0.1 - Initial stable version
 
 
 -------------------------------------------------------------------------------
