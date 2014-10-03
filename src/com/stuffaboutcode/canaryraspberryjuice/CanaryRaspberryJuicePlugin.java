@@ -19,17 +19,27 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	public ServerListenerThread serverThread;
 
 	public List<RemoteSession> sessions;
+	
+	public CanaryRaspberryJuiceConfiguration config;
 
 	@Override
 	public boolean enable() {
-		Canary.hooks().registerListener(new CanaryRaspberryJuiceListener(this), this);
 		getLogman().info("Enabling " + getName() + " Version " + getVersion()); 
 		getLogman().info("Authored by "+ getAuthor());
 		
+		//load configuration
+		config = new CanaryRaspberryJuiceConfiguration(this);
+		//get server port
+		int port = config.getPort();
+		
+		//register the listener
+		Canary.hooks().registerListener(new CanaryRaspberryJuiceListener(this), this);
+		
+		//setup sessions array
 		sessions = new ArrayList<RemoteSession>();
 		
+		//create new tcp listener thread
 		try {
-			int port = 4711;
 			serverThread = new ServerListenerThread(this, new InetSocketAddress(port));
 			new Thread(serverThread).start();
 			getLogman().info("Raspberry Juice ThreadListener Started");
@@ -44,22 +54,26 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	
 	@Override
 	public void disable() {
-		getLogman().info("Raspberry Juice Stopped");
+		Canary.hooks().unregisterPluginListeners(this);
+		for (RemoteSession session: sessions) {
+			try {
+				session.close();
+			} catch (Exception e) {
+				getLogman().warn("Failed to close RemoteSession");
+				e.printStackTrace();
+			}
+		}
 		serverThread.running = false;
 		try {
 			serverThread.serverSocket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		for (RemoteSession session: sessions) {
-			try {
-				session.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		
 		sessions = null;
 		serverThread = null;
+		getLogman().info("Raspberry Juice Stopped");
+		
 	}
 		
 	/** called when a new session is established. */
@@ -113,4 +127,3 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
     }
 	
 }
-

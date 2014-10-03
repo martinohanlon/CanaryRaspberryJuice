@@ -22,6 +22,10 @@ public class RemoteSession {
 	private BufferedReader in;
 
 	private BufferedWriter out;
+	
+	private Thread inThread;
+	
+	private Thread outThread;
 
 	private ArrayDeque<String> inQueue = new ArrayDeque<String>();
 
@@ -62,8 +66,10 @@ public class RemoteSession {
 	}
 
 	protected void startThreads() {
-		new Thread(new InputThread()).start();
-		new Thread(new OutputThread()).start();
+		inThread = new Thread(new InputThread());
+		inThread.start();
+		outThread = new Thread(new OutputThread());
+		outThread.start();
 	}
 
 	public Location getOrigin() {
@@ -242,7 +248,8 @@ public class RemoteSession {
 			
 		// world.getHeight
 		} else if (c.equals("world.getHeight")) {
-            send(world.getHighestBlockAt(Integer.parseInt(args[0]), Integer.parseInt(args[1])) - origin.getBlockY());
+			Location loc = parseRelativeBlockLocation(args[0], "0", args[1]);
+            send(world.getHighestBlockAt(loc.getBlockX(), loc.getBlockZ()) - origin.getBlockY());
             
         // not a command which is supported
 		} else {
@@ -298,6 +305,7 @@ public class RemoteSession {
 		return blockData.substring(0, blockData.length() > 0 ? blockData.length() - 1 : 0);	// We don't want last comma
 	}
 	
+	// gets the current player
     public Player getCurrentPlayer(String name) {
     	// if a named player is returned use that
         Player player = plugin.getNamedPlayer(name);
@@ -352,23 +360,25 @@ public class RemoteSession {
 		if (closed) return;
 		running = false;
 		pendingRemoval = true;
-
+		//wait for threads to stop
+		try {
+			inThread.join(2000);
+			outThread.join(2000);
+		}
+		catch (InterruptedException e) {
+			plugin.getLogman().warn("Failed to stop in/out thread");
+			e.printStackTrace();
+		}
+		
+		//close socket
 		try {
 			socket.close();
 		} catch (Exception e) {
+			plugin.getLogman().warn("Failed to close socket");
 			e.printStackTrace();
 		}
-		try {
-			in.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try {
-			out.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		closed = true;
 		plugin.getLogman().info("Closed connection to" + socket.getRemoteSocketAddress() + ".");
 	}
 
@@ -401,9 +411,19 @@ public class RemoteSession {
 						//System.out.println("Added to in queue");
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
-					running = false;
+					// if its running raise an error
+					if (running) {
+						e.printStackTrace();
+						running = false;
+					}
 				}
+			}
+			//close in buffer
+			try {
+				in.close();
+			} catch (Exception e) {
+				plugin.getLogman().warn("Failed to close in buffer");
+				e.printStackTrace();
 			}
 		}
 	}
@@ -422,13 +442,24 @@ public class RemoteSession {
 					Thread.yield();
 					Thread.sleep(1L);
 				} catch (Exception e) {
-					e.printStackTrace();
-					running = false;
+					// if its still running raise an error
+					if (running) {
+						e.printStackTrace();
+						running = false;
+					}
 				}
+			}
+			//close out buffer
+			try {
+				out.close();
+			} catch (Exception e) {
+				plugin.getLogman().warn("Failed to close out buffer");
+				e.printStackTrace();
 			}
 		}
 	}
 
+	// turn block faces to numbers
 	public static int blockFaceToNotch(BlockFace face) {
 		switch (face) {
 		case BOTTOM:

@@ -24,17 +24,19 @@ public class CanaryRaspberryJuiceListener implements PluginListener {
 			ItemType.StoneSword.getId(), 
 			ItemType.WoodSword.getId()));
 	
+	// Class constructor
 	public CanaryRaspberryJuiceListener(CanaryRaspberryJuicePlugin plugin) {
 		this.plugin = plugin;
 	}
     
-	@HookHandler
+	/*@HookHandler
     public void onLogin(ConnectionHook hook) {
 		hook.getPlayer().message(Colors.YELLOW+"Hello " + hook.getPlayer().getName() + " Raspberry Juice is running");
-    }
+    }*/
 
 	@HookHandler
 	public void onTick(ServerTickHook tickHook) {
+		//called each tick of the server it gets all the remote sessions to run
 		Iterator<RemoteSession> sI = plugin.sessions.iterator();
 		while(sI.hasNext()) {
 			RemoteSession s = sI.next();
