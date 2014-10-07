@@ -42,7 +42,7 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 		try {
 			serverThread = new ServerListenerThread(this, new InetSocketAddress(port));
 			new Thread(serverThread).start();
-			getLogman().info("Raspberry Juice ThreadListener Started");
+			getLogman().info("ThreadListener Started");
 		} catch (Exception e) {
 			e.printStackTrace();
 			getLogman().warn("Failed to start ThreadListener");
