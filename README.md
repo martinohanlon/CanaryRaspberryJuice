@@ -4,14 +4,10 @@ Martin O'Hanlon (martin@ohanlonweb.com)
 http://www.stuffaboutcode.com
 -------------------------------------------------------------------------------
 
-<<<<<<< HEAD
 A Canarymod plugin implementing a subset and superset of the Minecraft Pi Socket API.
 
 Migrated from the RaspberryJuice bukkit plugin. Original work by zhuowei
 
-=======
-Migration of RaspberryJuice bukkit plugin to Canarymod. Original plugin by zhuowei
->>>>>>> origin/master
 https://github.com/zhuowei/RaspberryJuice
 
 http://dev.bukkit.org/bukkit-plugins/raspberryjuice/
