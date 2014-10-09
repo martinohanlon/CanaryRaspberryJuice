@@ -47,6 +47,6 @@ Extra features(**):
 
 Version history
 - 0.1 - Initial stable version
-
+- 1.0 - First release.  Tested extensively with Canarymod 1.7.10-1.1.2
 
 -------------------------------------------------------------------------------
