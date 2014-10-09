@@ -2,10 +2,10 @@ package com.stuffaboutcode.canaryraspberryjuice;
 
 import java.util.*;
 
-import net.canarymod.chat.Colors;
+//import net.canarymod.chat.Colors;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.system.ServerTickHook;
-import net.canarymod.hook.player.ConnectionHook;
+//import net.canarymod.hook.player.ConnectionHook;
 import net.canarymod.hook.player.BlockRightClickHook;
 import net.canarymod.plugin.*;
 import net.canarymod.api.inventory.*;

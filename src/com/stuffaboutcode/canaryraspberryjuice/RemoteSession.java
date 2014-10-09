@@ -226,7 +226,9 @@ public class RemoteSession {
 				name = args[0]; x = args[1]; y = args[2]; z = args[3];
 			}
 			Player currentPlayer = getCurrentPlayer(name);
-			currentPlayer.teleportTo(parseRelativeBlockLocation(x, y, z));
+			//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
+			Location loc = currentPlayer.getLocation();
+			currentPlayer.teleportTo(parseRelativeBlockLocation(x, y, z, loc.getPitch(), loc.getRotation()));
 			
 		// player.getPos
 		} else if (c.equals("player.getPos")) {
@@ -244,7 +246,9 @@ public class RemoteSession {
 				name = args[0]; x = args[1]; y = args[2]; z = args[3];
 			}
 			Player currentPlayer = getCurrentPlayer(name);
-			currentPlayer.teleportTo(parseRelativeLocation(x, y, z));
+			//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
+			Location loc = currentPlayer.getLocation();
+			currentPlayer.teleportTo(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getRotation()));
 			
 		// world.getHeight
 		} else if (c.equals("world.getHeight")) {
@@ -335,6 +339,20 @@ public class RemoteSession {
 		return new Location(plugin.getWorld(), origin.getBlockX() + x, origin.getBlockY() + y, origin.getBlockZ() + z, 0f, 0f);
 	}
 
+	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr, float pitch, float yaw) {
+		Location loc = parseRelativeBlockLocation(xstr, ystr, zstr);
+		loc.setPitch(pitch);
+		loc.setRotation(yaw);
+		return loc;
+	}
+
+	public Location parseRelativeLocation(String xstr, String ystr, String zstr, float pitch, float yaw) {
+		Location loc = parseRelativeLocation(xstr, ystr, zstr);
+		loc.setPitch(pitch);
+		loc.setRotation(yaw);
+		return loc;
+	}
+	
 	public String blockLocationToRelative(Location loc) {
 		return (loc.getBlockX() - origin.getBlockX()) + "," + (loc.getBlockY() - origin.getBlockY()) + "," +
 			(loc.getBlockZ() - origin.getBlockZ());
