@@ -49,4 +49,6 @@ Version history
 - 0.1 - Initial stable version
 - 1.0 - First release.  Tested extensively with Canarymod 1.7.10-1.1.2
 - 1.0.1 - Minor bug fix
+- 1.0.2 - Recreated with Java 1.6
+
 -------------------------------------------------------------------------------
