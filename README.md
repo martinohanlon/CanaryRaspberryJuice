@@ -38,7 +38,7 @@ Extra features(**):
    - this change does not stop standard python api library being used
    - the default tcp port can be changed in config/CanaryRaspberryJuicePlugin/CanaryRaspberryJuicePlugin.cfg
 
-** to use the extra features an modded version of the java and python libraries that were originally supplied by Mojang with the Pi is required, https://github.com/martinohanlon/CanaryRaspberryJuice/resources/mcpi.  You only need the modded libraries to use the extra features, the original libraries still work, you just wont be able to use the extra features
+** to use the extra features an modded version of the java and python libraries that were originally supplied by Mojang with the Pi is required, https://github.com/martinohanlon/CanaryRaspberryJuice/tree/master/resources/mcpi.  You only need the modded libraries to use the extra features, the original libraries still work, you just wont be able to use the extra features
 
 
 
@@ -48,5 +48,7 @@ Extra features(**):
 Version history
 - 0.1 - Initial stable version
 - 1.0 - First release.  Tested extensively with Canarymod 1.7.10-1.1.2
+- 1.0.1 - Minor bug fix
+- 1.0.2 - Recreated with Java 1.6
 
 -------------------------------------------------------------------------------
