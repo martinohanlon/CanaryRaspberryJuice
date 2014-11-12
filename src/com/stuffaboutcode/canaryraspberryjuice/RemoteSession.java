@@ -147,6 +147,17 @@ public class RemoteSession {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			send(world.getBlockAt(loc).getTypeId() + "," + world.getBlockAt(loc).getData());
 			
+		// world.getSignText
+		} else if (c.equals("world.getSignText")) {
+		    Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+		    if (world.getBlockAt(loc).getTileEntity() instanceof Sign){
+		        Sign sign = (Sign) world.getBlockAt(loc).getTileEntity();
+		        send(sign.getTextOnLine(0) + "," + sign.getTextOnLine(1) + "," +
+		             sign.getTextOnLine(2) + "," + sign.getTextOnLine(3));
+		    }else{
+		        send("not a sign");
+		    }	
+			
 		// world.setBlock
 		} else if (c.equals("world.setBlock")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
