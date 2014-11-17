@@ -133,6 +133,12 @@ class Minecraft:
         """Get block with data (x,y,z) => Block"""
         ans = self.conn.sendReceive("world.getBlockWithData", intFloor(args))
         return Block(*map(int, ans.split(",")))
+        
+    def getSignText(self, *args):
+        """Get text from a sign block (x,y,z) => [line:string]"""
+        ans = self.conn.sendReceive("world.getSignText", intFloor(args))
+        return ans.split(',')
+        
     """
         @TODO
     """
