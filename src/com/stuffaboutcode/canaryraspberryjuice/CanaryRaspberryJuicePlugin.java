@@ -117,6 +117,7 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
 	// gets a named player, as opposed to the host player
 	public Player getNamedPlayer(String name) {
         if (name == null) return null;
+        // TODO - change this to use getPlayer(name)
         List<Player> allPlayers = getServer().getPlayerList();
         for (int i = 0; i < allPlayers.size(); ++i) {
             if (name.equals(allPlayers.get(i).getName())) {
@@ -125,5 +126,16 @@ public class CanaryRaspberryJuicePlugin extends Plugin {
         }
         return null;
     }
+	
+	//get entity by id - TODO to be compatible with the pi it should be changed to return an entity not a player...
+	public Player getEntity(int id) {
+		List<Player> allPlayers = getServer().getPlayerList();
+        for (int i = 0; i < allPlayers.size(); ++i) {
+            if (allPlayers.get(i).getID() == id) {
+                return allPlayers.get(i);
+            }
+        }
+		return null;
+	}
 	
 }

@@ -26,6 +26,10 @@ Features currently supported:
  - player.getPos
  - player.setPos
  - world.getHeight
+ - entity.getTile
+ - entity.setTile
+ - entity.getPos
+ - entity.setPos
 
 Features that can't be supported:
  - Camera angles
@@ -36,7 +40,7 @@ Extra features(**):
    - name added as an option parameter to player.
    - modded minecraft.py in python api library so player "name" can be passed on Minecraft.create(ip, port, name)
    - this change does not stop standard python api library being used
-   - the default tcp port can be changed in config/CanaryRaspberryJuicePlugin/CanaryRaspberryJuicePlugin.cfg
+ - the default tcp port can be changed in config/CanaryRaspberryJuicePlugin/CanaryRaspberryJuicePlugin.cfg
 
 ** to use the extra features an modded version of the java and python libraries that were originally supplied by Mojang with the Pi is required, https://github.com/martinohanlon/CanaryRaspberryJuice/tree/master/resources/mcpi.  You only need the modded libraries to use the extra features, the original libraries still work, you just wont be able to use the extra features
 
@@ -50,5 +54,6 @@ Version history
 - 1.0 - First release.  Tested extensively with Canarymod 1.7.10-1.1.2
 - 1.0.1 - Minor bug fix
 - 1.0.2 - Recreated with Java 1.6
+- 1.1 - Implemented entity functions
 
 -------------------------------------------------------------------------------
