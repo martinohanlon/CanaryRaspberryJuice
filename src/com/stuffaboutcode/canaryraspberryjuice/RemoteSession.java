@@ -175,6 +175,16 @@ public class RemoteSession {
 				}
 				bdr.deleteCharAt(bdr.length()-1);
 				send(bdr.toString());
+
+			// world.getPlayerId
+			} else if (c.equals("world.getPlayerId")) {
+				Player p = plugin.getNamedPlayer(args[0]);
+				if (p != null) {
+					send(p.getID());
+				} else {
+					plugin.getLogman().info("Player [" + args[0] + "] not found.");
+					send("Fail");
+				}
 				
 			// chat.post
 			} else if (c.equals("chat.post")) {
@@ -252,6 +262,34 @@ public class RemoteSession {
 				Location loc = currentPlayer.getLocation();
 				currentPlayer.teleportTo(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getRotation()));
 				
+			// player.getDirection
+			} else if (c.equals("player.getDirection")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				Vector3D direction = getDirection(currentPlayer);
+				send(direction.getX() + "," + direction.getY() + "," + direction.getZ());
+
+			// player.getRotation
+			} else if (c.equals("player.getRotation")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(currentPlayer.getLocation().getRotation());
+				
+			// player.getPitch
+			} else if (c.equals("player.getPitch")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(currentPlayer.getLocation().getPitch());
+
 			// world.getHeight
 			} else if (c.equals("world.getHeight")) {
 				Location loc = parseRelativeBlockLocation(args[0], "0", args[1]);
@@ -305,6 +343,43 @@ public class RemoteSession {
 					//get entity's current location, so when they are moved we will use the same pitch and yaw (rotation)
 					Location loc = entity.getLocation();
 					entity.teleportTo(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getRotation()));
+				} else {
+					plugin.getLogman().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+
+			// entity.getDirection
+			} else if (c.equals("entity.getDirection")) {
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					Vector3D direction = getDirection(entity);
+					send(direction.getX() + "," + direction.getY() + "," + direction.getZ());
+				} else {
+					plugin.getLogman().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+				
+			// entity.getRotation
+			} else if (c.equals("entity.getRotation")) {
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					send(entity.getLocation().getRotation());
+				} else {
+					plugin.getLogman().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+				
+			// entity.getPitch
+			} else if (c.equals("entity.getPitch")) {
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					send(entity.getLocation().getPitch());
 				} else {
 					plugin.getLogman().info("Entity [" + args[0] + "] not found.");
 					send("Fail");
@@ -426,6 +501,16 @@ public class RemoteSession {
 			(loc.getZ() - origin.getZ());
 	}
 
+	// creates a unit vector from rotation and pitch
+	public Vector3D getDirection(Player player) {
+		double rotation = Math.toRadians(player.getLocation().getRotation());
+		double pitch = Math.toRadians(player.getLocation().getPitch());
+		double x = (Math.sin(rotation) * Math.cos(pitch)) * -1;
+		double y = Math.sin(pitch);
+		double z = Math.cos(rotation) * Math.cos(pitch);
+		return new Vector3D(x,y,z);
+	}
+	
 	public void send(Object a) {
 		send(a.toString());
 	}
