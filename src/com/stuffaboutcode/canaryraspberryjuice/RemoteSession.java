@@ -506,7 +506,7 @@ public class RemoteSession {
 		double rotation = Math.toRadians(player.getLocation().getRotation());
 		double pitch = Math.toRadians(player.getLocation().getPitch());
 		double x = (Math.sin(rotation) * Math.cos(pitch)) * -1;
-		double y = Math.sin(pitch);
+		double y = Math.sin(pitch) * -1;
 		double z = Math.cos(rotation) * Math.cos(pitch);
 		return new Vector3D(x,y,z);
 	}
