@@ -38,6 +38,7 @@ Extra features(**):
  - getBlocks(x1,y1,z1,x2,y2,z2) has been implemented
  - getDirection, getRotation, getPitch functions - get the 'direction' players and entities are facing
  - getPlayerId(playerName) - get the entity of a player by name
+ - pollChatPosts() - get events back for posts to the chat
  - multiplayer support
    - name added as an option parameter to player.
    - modded minecraft.py in python api library so player "name" can be passed on Minecraft.create(ip, port, name)
@@ -57,5 +58,6 @@ Version history
 - 1.0.2 - Recreated with Java 1.6
 - 1.1 - Implemented entity functions
 - 1.2 - added getPlayerId(playerName), getDirection, getRotation, getPitch
+- 1.3 - added pollChatPosts() & block update performance improvements
 
 -------------------------------------------------------------------------------
