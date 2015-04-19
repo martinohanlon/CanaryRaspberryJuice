@@ -10,6 +10,7 @@ import net.canarymod.api.world.position.*;
 import net.canarymod.api.world.blocks.*;
 import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.hook.player.BlockRightClickHook;
+import net.canarymod.hook.player.ChatHook;
 
 // Remote session class manages commands
 public class RemoteSession {
@@ -37,7 +38,9 @@ public class RemoteSession {
 
 	public CanaryRaspberryJuicePlugin plugin;
 
-	protected ArrayDeque<BlockRightClickHook> blocktHitQueue = new ArrayDeque<BlockRightClickHook>();
+	protected ArrayDeque<BlockRightClickHook> blockHitQueue = new ArrayDeque<BlockRightClickHook>();
+	
+	protected ArrayDeque<ChatHook> chatPostedQueue = new ArrayDeque<ChatHook>();
 
 	private int maxCommandsPerTick = 9000;
 
@@ -152,11 +155,7 @@ public class RemoteSession {
 			// world.setBlock
 			} else if (c.equals("world.setBlock")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				//DEBUG
-				Block thisBlock = world.getBlockAt(loc);
-				thisBlock.setTypeId(Short.parseShort(args[3]));
-				thisBlock.setData(args.length > 4? Short.parseShort(args[4]) : (short) 0);
-				thisBlock.update();
+				updateBlock(world, loc, Short.parseShort(args[3]), args.length > 4? Short.parseShort(args[4]) : (short) 0);
 				
 			// world.setBlocks
 			} else if (c.equals("world.setBlocks")) {
@@ -199,14 +198,15 @@ public class RemoteSession {
 			
 			// events.clear
 			} else if (c.equals("events.clear")) {
-				blocktHitQueue.clear();
+				blockHitQueue.clear();
+				chatPostedQueue.clear();
 			
 			// events.block.hits
 			} else if (c.equals("events.block.hits")) {
 				// this doesn't work with multiplayer! need to think about how this should work
 				StringBuilder b = new StringBuilder();
 		 		BlockRightClickHook event;
-				while ((event = blocktHitQueue.poll()) != null) {
+				while ((event = blockHitQueue.poll()) != null) {
 					Block block = event.getBlockClicked();
 					Location loc = block.getLocation();
 					b.append(blockLocationToRelative(loc));
@@ -214,7 +214,23 @@ public class RemoteSession {
 					b.append(blockFaceToNotch(block.getFaceClicked()));
 					b.append(",");
 					b.append(event.getPlayer().getID());
-					if (blocktHitQueue.size() > 0) {
+					if (blockHitQueue.size() > 0) {
+						b.append("|");
+					}
+				}
+				//DEBUG
+				//plugin.getLogman().info(b.toString());
+				send(b.toString());
+				
+			// events.chat.posts
+			} else if (c.equals("events.chat.posts")) {
+				StringBuilder b = new StringBuilder();
+		 		ChatHook event;
+				while ((event = chatPostedQueue.poll()) != null) {
+					b.append(event.getPlayer().getID());
+					b.append(",");
+					b.append(event.getMessage());
+					if (chatPostedQueue.size() > 0) {
 						b.append("|");
 					}
 				}
@@ -293,9 +309,9 @@ public class RemoteSession {
 			// world.getHeight
 			} else if (c.equals("world.getHeight")) {
 				Location loc = parseRelativeBlockLocation(args[0], "0", args[1]);
-	            send(world.getHighestBlockAt(loc.getBlockX(), loc.getBlockZ()) - origin.getBlockY());
+				send(world.getHighestBlockAt(loc.getBlockX(), loc.getBlockZ()) - origin.getBlockY());
 	    	
-	        // entity.getTile
+			// entity.getTile
 			} else if (c.equals("entity.getTile")) {
 				//get entity based on id
 				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
@@ -414,10 +430,7 @@ public class RemoteSession {
 		for (int x = minX; x <= maxX; ++x) {
 			for (int z = minZ; z <= maxZ; ++z) {
 				for (int y = minY; y <= maxY; ++y) {
-					Block thisBlock = world.getBlockAt(x,y,z);
-					thisBlock.setTypeId(blockType);
-					thisBlock.setData(data);
-					thisBlock.update();
+					updateBlock(world, x, y, z, blockType, data);
 				}
 			}
 		}
@@ -445,6 +458,26 @@ public class RemoteSession {
 		}
 
 		return blockData.substring(0, blockData.length() > 0 ? blockData.length() - 1 : 0);	// We don't want last comma
+	}
+
+	// updates a block
+	private void updateBlock(World world, Location loc, short blockType, short blockData) {
+		Block thisBlock = world.getBlockAt(loc);
+		updateBlock(thisBlock, blockType, blockData);
+	}
+	
+	private void updateBlock(World world, int x, int y, int z, short blockType, short blockData) {
+		Block thisBlock = world.getBlockAt(x,y,z);
+		updateBlock(thisBlock, blockType, blockData);
+	}
+	
+	private void updateBlock(Block thisBlock, short blockType, short blockData) {
+		// check to see if the block is different - otherwise leave it 
+		if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
+			thisBlock.setTypeId(blockType);
+			thisBlock.setData(blockData);
+			thisBlock.update();
+		}
 	}
 	
 	// gets the current player
@@ -559,7 +592,12 @@ public class RemoteSession {
 
 	// add a block hit to the queue to be processed
 	public void queueBlockHit(BlockRightClickHook hitHook) {
-		blocktHitQueue.add(hitHook);
+		blockHitQueue.add(hitHook);
+	}
+	
+	// add a chat posted to the queue to be processed
+	public void queueChatPost(ChatHook chatHook) {
+		chatPostedQueue.add(chatHook);
 	}
 	
 	/** socket listening thread */
